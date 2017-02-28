@@ -29,7 +29,7 @@ function draw(){
     var totalEnrChart = dc.bubbleChart('#dc-total-enr');
     var enrByDeptChart = dc.pieChart('#dc-enr-by-dept');
     var totalEnrDeptChart = dc.lineChart('#dc-total-enr-dept');
-    
+    var multiLineChart = dc.seriesChart('#dc-multi-line');
   
     
     var facts = crossfilter(data);
@@ -67,7 +67,7 @@ function draw(){
         }        
     );
     
-    collDim.filter(college);
+    //collDim.filter(college);
     termDim.filter(term);
    /* $(".radio-inline").on("click", function(){
        collDim.filter(($(this).find('input').attr('id'))); 
@@ -98,7 +98,7 @@ function draw(){
             .xAxisPadding(500);
    
    //totalEnrChart.yAxis().tickFormat(function(d){debugger;return d3.format(',d')(d);});
-    console.log(yearValGroup);
+   // console.log(yearValGroup);
     
     totalEnrDeptChart.width(480)
             .height(350)
@@ -106,6 +106,7 @@ function draw(){
             .margins({top:10, right: 50, bottom: 30, left: 50})
             .dimension(yearDim)
             .group(yearValGroup)
+            //.filter(function(d){console.log(d);})
             .elasticY(true)
             .x(d3.time.scale().domain([new Date(2011, 0, 1), new Date(2016, 0, 1)]))
             .y(d3.scale.linear().domain([1000, 20000]))
@@ -123,6 +124,30 @@ function draw(){
             .dimension(deptDim)
             .group(deptGroup);
 
+   
+    var collYearDim = facts.dimension(function(d){return [d.Year, d.College];})
+    var collYearGroup = collYearDim.group()
+            .reduceSum(function(d){ return +d.headcount; });
+    dc.registerChart(multiLineChart, "nofilter");
+    //collDim.filterAll("nofilter");
+    //multi-line chart
+    multiLineChart.width(868)
+            .height(480)
+            .chart(function(c){return dc.lineChart(c).interpolate('linear')})
+            .x(d3.time.scale().domain([new Date(2012, 0, 1), new Date(2016, 0, 1)]))
+            .y(d3.scale.linear().domain([1000, 100000]))
+            .brushOn(false)
+            .yAxisLabel("Head Count")
+            .xAxisLabel("Years")
+            .clipPadding(10)
+            .elasticY(true)
+            .dimension(collYearDim)
+            .group(collYearGroup)
+            .mouseZoomable(true)
+            .seriesAccessor(function(d) {return d.key[1];})
+            .keyAccessor(function(d) {return d.key[0];})
+            .valueAccessor(function(d) {return d.value;})
+            .legend(dc.legend().x(750).y(350).itemHeight(13).gap(5).horizontal(2).legendWidth(140).itemWidth(70));
     dc.renderAll();
     
 });
