@@ -93,7 +93,11 @@ function makeTrace(filterDim){
        x: keyvalue[0],
        y: keyvalue[1],
        name: 'actual - '+ (department === null ? college : department),
-       type: 'scatter'
+       type: 'scatter',
+       line: {
+           shape: 'spline',
+           smoothing: 0.25
+       }
    };
    
    //projected data
@@ -110,7 +114,9 @@ function makeTrace(filterDim){
        name: 'projected - ' + (department === null ? college : department),
        line:{
            dash: 'dot',
-           width: 4
+           width: 4,
+           shape: 'spline',
+           smoothing: 0.25
        }
    };
    trace.push(trace2);
